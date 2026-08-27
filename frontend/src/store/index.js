@@ -23,12 +23,8 @@ export default createStore({
             state.token = token;
             if (token) {
                 localStorage.setItem('token', token);
-                const decoded = jwtDecode(token);
-                state.user={role:decoded.role}; 
             } else {
                 localStorage.removeItem('token');
-                state.user = null;
-                localStorage.removeItem('user');
             }
         },
         setUser(state, user) {

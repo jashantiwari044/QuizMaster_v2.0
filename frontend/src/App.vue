@@ -1,210 +1,150 @@
 <template>
-  <div id="app">
-    
-    <nav class="navbar navbar-expand-lg " > 
-      <div class="container-fluid" >
-        <a class="navbar-brand" href="/">Quiz Master <font-awesome-icon icon="fa-solid fa-graduation-cap" bounce style="color: #B197FC;" /></a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
+  <div id="app" class="app-wrapper">
+    <!-- Top Navigation Bar -->
+    <header class="app-header">
+      <div class="header-container">
+        <div class="header-left">
+          <router-link to="/" class="brand-link">
+            <div class="brand-badge">
+              <Sparkles class="brand-icon" size="18" />
+            </div>
+            <span class="brand-text">QuizMaster<span class="brand-dot">.</span></span>
+          </router-link>
+
+          <span v-if="isAuthenticated" class="role-chip" :class="userRole">
+            {{ userRole === 'admin' ? 'Administrator' : 'Student' }}
+          </span>
+        </div>
+
+        <button class="mobile-toggle" @click="toggleMobileMenu" aria-label="Toggle menu">
+          <Menu v-if="!isMobileMenuOpen" size="20" />
+          <X v-else size="20" />
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
-            <template v-if="isAuthenticated">
-              <template v-if="userRole == 'admin'">
-                <li class="nav-item">
-                  <router-link class="nav-link" aria-current="page" to="/admin-dashboard"><font-awesome-icon icon="fa-solid fa-house" size='l' /></router-link>
-                </li>
-                <li class="nav-item">
-                  <router-link class="nav-link" to="/admin-summary">Summary <font-awesome-icon icon="fa-solid fa-chart-simple" size='l' /></router-link>
-                </li>
-              </template>
-              <template v-if="userRole == 'user'">
-                <li class="nav-item">
-                  <router-link class="nav-link" aria-current="page" to="/user-dashboard"><font-awesome-icon :icon="['fas', 'house-user']" size='l' /></router-link>
-                </li>
-                <li class="nav-item">
-                  <router-link class="nav-link" to="/user-summary">Summary <font-awesome-icon icon="fa-solid fa-chart-simple" size='l' /></router-link>
-                </li>
-              </template>
-              <li class="nav-item">
-                <button class="btn btn-link nav-link" @click="logout">Logout</button>
-              </li>
-            </template>
-            <template v-else>
-              <li class="nav-item">
-                <a class="nav-link" href="https://mail.google.com/mail/?view=cm&fs=1&to=jashantiwari044@gmail.com" target="_blank" style="font-size: medium;" >
-                  <font-awesome-icon icon="fa-solid fa-envelope" size="xl" style="color: #B197FC;" />
-                  Contact
-                </a>
-              </li>
-              <li class="nav-item">
-                <router-link to="/login" class="btn btn-secondary">Get Started</router-link>
-              </li>
-            </template>
-          </ul>
+
+        <div class="header-right" :class="{ 'mobile-active': isMobileMenuOpen }">
+          <template v-if="isAuthenticated">
+            <div class="user-profile-chip">
+              <div class="avatar-circle">
+                {{ userInitial }}
+              </div>
+              <div class="user-meta">
+                <span class="user-name">{{ userName }}</span>
+                <span class="user-status-pill">Active</span>
+              </div>
+            </div>
+
+            <button class="btn-logout" @click="handleLogout">
+              <LogOut size="16" />
+              <span>Sign out</span>
+            </button>
+          </template>
+
+          <template v-else>
+            <router-link to="/login" class="btn-login-clean">
+              Sign In
+            </router-link>
+            <router-link to="/signup" class="btn-primary-clean">
+              Get Started
+            </router-link>
+          </template>
         </div>
       </div>
-    </nav>
+    </header>
 
-    <!-- Sidebar for admin -->
-    <div class="container-fluid g-0">
-      <div class="row g-0">
-        <template v-if="isAuthenticated && userRole === 'admin'">
-          <nav class="col-md-2 d-none d-md-block sidebar vh-auto">
-            <div class="position-sticky pt-3 ">
-              <ul class="nav flex-column rounded-3 p-3 text-primary-emphasis bg-light rounded-3 " style="margin-left: 15px; margin-right: 15px;">
-                <li class="nav-item">
-                  <router-link class="nav-link link-dark icon-link txt-dark icon-link-hover"
-                    aria-current="page"
-                    to="/subject">
-                    <i class="bi bi-book"></i> Subjects
-                    <svg xmlns="http://www.w3.org/2000/svg" class="bi" viewBox="0 0 16 16" aria-hidden="true">
-                      <path
-                        d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
-                    </svg>
-                  </router-link>
-                </li>
-                <li class="nav-item">
-                  <router-link class="nav-link link-dark icon-link icon-link-hover"
-                    aria-current="page"
-                    to="/admin-dashboard">
-                    <i class="bi bi-book"></i> Chapters
-                    <svg xmlns="http://www.w3.org/2000/svg" class="bi" viewBox="0 0 16 16" aria-hidden="true">
-                      <path
-                        d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
-                    </svg>
-                  </router-link>
-                </li>
-                <li class="nav-item">
-                  <router-link class="nav-link link-dark icon-link icon-link-hover"
-                    to="/quiz-management">
-                    <i class="bi bi-question-circle"></i> Quiz
-                    <svg xmlns="http://www.w3.org/2000/svg" class="bi" viewBox="0 0 16 16" aria-hidden="true">
-                      <path
-                        d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
-                    </svg>
-                  </router-link>
-                </li>
-                <li class="nav-item">
-                  <router-link class="nav-link link-dark icon-link icon-link-hover"
-                    to="/users">
-                    <i class="bi bi-people"></i> Users
-                    <svg xmlns="http://www.w3.org/2000/svg" class="bi" viewBox="0 0 16 16" aria-hidden="true">
-                      <path
-                        d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
-                    </svg>
-                  </router-link>
-                </li>
-                <!-- Add more nav items as needed -->
-              </ul>
+    <!-- Body Layout with Sidebar -->
+    <div class="app-body">
+      <!-- Authenticated Sidebar -->
+      <aside v-if="isAuthenticated" class="app-sidebar" :class="{ 'sidebar-open': isMobileMenuOpen }">
+        <div class="sidebar-section-title">Navigation</div>
+        
+        <!-- Admin Navigation -->
+        <nav v-if="userRole === 'admin'" class="sidebar-nav">
+          <router-link class="nav-item" to="/subject" @click="closeMobileMenu">
+            <div class="nav-item-icon"><BookOpen size="18" /></div>
+            <span class="nav-item-text">Subjects</span>
+          </router-link>
+          <router-link class="nav-item" to="/admin-dashboard" @click="closeMobileMenu">
+            <div class="nav-item-icon"><Layers size="18" /></div>
+            <span class="nav-item-text">Chapters</span>
+          </router-link>
+          <router-link class="nav-item" to="/quiz-management" @click="closeMobileMenu">
+            <div class="nav-item-icon"><HelpCircle size="18" /></div>
+            <span class="nav-item-text">Quiz Manager</span>
+          </router-link>
+          <router-link class="nav-item" to="/users" @click="closeMobileMenu">
+            <div class="nav-item-icon"><Users size="18" /></div>
+            <span class="nav-item-text">Students</span>
+          </router-link>
+          <router-link class="nav-item" to="/admin-summary" @click="closeMobileMenu">
+            <div class="nav-item-icon"><BarChart2 size="18" /></div>
+            <span class="nav-item-text">Analytics</span>
+          </router-link>
+        </nav>
+
+        <!-- User / Student Navigation -->
+        <nav v-else-if="userRole === 'user'" class="sidebar-nav">
+          <router-link class="nav-item" to="/user-dashboard" @click="closeMobileMenu">
+            <div class="nav-item-icon"><BookOpen size="18" /></div>
+            <span class="nav-item-text">Explore Quizzes</span>
+          </router-link>
+          <button class="nav-item btn-nav-item" :class="{'router-link-active router-link-exact-active': isScoreActive}" @click="goToMyScore">
+            <div class="nav-item-icon"><Trophy size="18" /></div>
+            <span class="nav-item-text">My Scores</span>
+          </button>
+          <router-link class="nav-item" to="/user-summary" @click="closeMobileMenu">
+            <div class="nav-item-icon"><BarChart2 size="18" /></div>
+            <span class="nav-item-text">Performance</span>
+          </router-link>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="support-card">
+            <div class="support-icon"><Sparkles size="16" /></div>
+            <div class="support-content">
+              <div class="support-title">QuizMaster 2.0</div>
+              <div class="support-subtitle">Minimal Light Edition</div>
             </div>
-          </nav>
-        </template>
+          </div>
+        </div>
+      </aside>
 
-        <!-- Sidebar for user -->
-        <template v-else-if="isAuthenticated && userRole === 'user'">
-          <nav class="col-md-2 d-none d-md-block  sidebar h-auto" >
-            <div class="position-sticky pt-3">
-              <ul class="nav flex-column rounded-3 p-3 text-primary-emphasis bg-light border rounded-3"  style="margin-left: 15px; margin-right: 15px;" >
-                <li class="nav-item">
-                  <router-link class="nav-link link-dark icon-link icon-link-hover"
-                    aria-current="page"
-                    to="/user-dashboard">
-                    <i class="bi bi-book"></i> Quiz
-                    <svg xmlns="http://www.w3.org/2000/svg" class="bi" viewBox="0 0 16 16"
-                      aria-hidden="true">
-                      <path
-                        d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
-                    </svg>
-                  </router-link>
-                </li>
-                <li class="nav-item" >
-                  <!-- Only render if userId is available -->
-                  <button
-                    class="nav-link link-dark icon-link icon-link-hover "
-                    :class="{'router-link-exact-active': isScoreActive}"
-                    @click.prevent="showScore(userId)">
-                    <i class="bi bi-book"></i> Score
-                    <svg xmlns="http://www.w3.org/2000/svg" class="bi" viewBox="0 0 16 16"
-                      aria-hidden="true">
-                      <path
-                        d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
-                    </svg>
-                  </button>
-                </li>
-                <li class="nav-item">
-                  <router-link class="nav-link link-dark icon-link icon-link-hover"
-                    aria-current="page"
-                    to="/user-summary">
-                    <i class="bi bi-book"></i>Summary
-                    <svg xmlns="http://www.w3.org/2000/svg" class="bi" viewBox="0 0 16 16"
-                      aria-hidden="true">
-                      <path
-                        d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
-                    </svg>
-                  </router-link>
-                </li>
-                <!-- Add more nav items as needed -->
-              </ul>
-            </div>
-          </nav>
-        </template>
-
-        <!-- Main content area -->
-        <main :class="isAuthenticated ? 'col-md-10 ms-sm-auto' : 'col-12'" :style="isAuthenticated ? 'background:linear-gradient(to right,#F8F8FF); background-repeat: no-repeat;' : ''">
-          <router-view />
-        </main>
-      </div>
+      <!-- Main Router View Area -->
+      <main class="app-main-content" :class="{ 'with-sidebar': isAuthenticated }">
+        <router-view />
+      </main>
     </div>
   </div>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
+import { 
+  Sparkles, Menu, X, BarChart2, LogOut, 
+  BookOpen, Layers, HelpCircle, Users, Trophy
+} from 'lucide-vue-next';
 
 export default {
   name: 'App',
+  components: {
+    Sparkles, Menu, X, BarChart2, LogOut,
+    BookOpen, Layers, HelpCircle, Users, Trophy
+  },
   data() {
     return {
-      userId: null,
+      isMobileMenuOpen: false
     };
-  },
-  async created() {
-    try {
-      // Get user data from storage with proper null checking
-      const sessionUser = sessionStorage.getItem('user');
-      const localUser = localStorage.getItem('user');
-      
-      let user = null;
-      
-      if (sessionUser) {
-        user = JSON.parse(sessionUser);
-      } else if (localUser) {
-        user = JSON.parse(localUser);
-      }
-      
-      // Only set userId if user exists and has an id property
-      if (user && user.id) {
-        this.userId = user.id;
-      } else {
-        console.warn('No valid user data found in storage');
-        this.userId = null;
-      }
-    } catch (error) {
-      console.error('Error parsing user data from storage:', error);
-      this.userId = null;
-    }
   },
   computed: {
     ...mapGetters(['isAuthenticated', 'userRole']),
+    userId() {
+      return this.$store.state.user?.id || null;
+    },
+    userName() {
+      return this.$store.state.user?.username || (this.userRole === 'admin' ? 'Admin' : 'Student');
+    },
+    userInitial() {
+      return this.userName ? this.userName.charAt(0).toUpperCase() : 'U';
+    },
     isScoreActive() {
       return (
         this.$route.name === 'UserScore' &&
@@ -213,183 +153,384 @@ export default {
       );
     },
   },
+  watch: {
+    $route() {
+      this.closeMobileMenu();
+    }
+  },
   methods: {
     ...mapActions(['logout']),
-    showScore(userId) {
-      if (!userId) {
-        console.error('User ID not available');
-        // Optionally redirect to login or show a more user-friendly message
+    toggleMobileMenu() {
+      this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    },
+    closeMobileMenu() {
+      this.isMobileMenuOpen = false;
+    },
+    goToMyScore() {
+      this.closeMobileMenu();
+      if (!this.userId) {
         this.$router.push('/login');
         return;
       }
-      this.$router.push({ name: 'UserScore', params: { userId } });
+      this.$router.push({ name: 'UserScore', params: { userId: this.userId } });
     },
+    handleLogout() {
+      this.closeMobileMenu();
+      this.logout();
+      this.$router.push('/login');
+    }
   },
 };
 </script>
 
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Playwrite+AU+SA:wght@100..400&display=swap');
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-.navbar {
-  padding: 15px;
-  background-color: #E6E6FA;
-}
-
-.nav-link {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-.nav-link.router-link-exact-active,
-.sidebar .nav-link.router-link-exact-active,
-.sidebar .nav-link.router-link-exact-active:focus,
-.sidebar .nav-link.router-link-exact-active:active {
-  background-color: #E6E6FA;
-  color: #8674eb !important;
-  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
-}
-
-/* For Score button active state */
-.sidebar .nav-link.router-link-exact-active {
-  background-color: #E6E6FA;
-  color: #8674eb !important;
-  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
-}
-
-/* Sidebar styles */
-.sidebar {
+<style scoped>
+.app-wrapper {
   min-height: 100vh;
-  background: linear-gradient(to right, #B0C4DE, #c4bbf7);
-  background-repeat: no-repeat;
-  box-shadow: 2px 0 16px 0 rgba(44, 62, 80, 0.15), 0 1.5px 4px rgba(44, 62, 80, 0.10);
-  border-bottom-right-radius: 18px;
-  border-right: 1px solid #d1d5db;
-  z-index: 10;
-}
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500&family=Luckiest+Guy&display=swap');
-.nav-item {
-  font-family: "Barlow Condensed", sans-serif;
-  font-weight: 500;
-  font-style: oblique;
-  font-size: large;
-  font-stretch: expanded;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-canvas);
 }
 
-/* Sidebar nav-link enhancements */
-.sidebar .nav-link {
-  transition: background 0.2s, box-shadow 0.2s;
-  border-radius: 8px;
-  margin-bottom: 6px;
+/* Header */
+.app-header {
+  height: 64px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
 }
 
-.sidebar .nav-link:hover {
-  background-color: #E6E6FA;
-  color: #8674eb !important;
-  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
+.header-container {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
-h1 {
-  font-family: 'Segoe UI', Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-  font-size: 2.8rem;
-  font-weight: 900;
-  font-style: normal;
-  letter-spacing: 2px;
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.brand-badge {
+  width: 34px;
+  height: 34px;
+  background: #0f172a;
+  color: #ffffff;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-text {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.03em;
+}
+
+.brand-dot {
+  color: var(--primary);
+}
+
+.role-chip {
+  padding: 3px 9px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
   text-transform: uppercase;
-  color: #4B3FE4; /* A modern, bold color */
-  background: linear-gradient(90deg, #B197 0%, #332e52 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
-  
+  letter-spacing: 0.04em;
 }
-h2{
-  font-family: 'Segoe UI', Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-  font-size: 2.8rem;
-  font-weight: 900;
-  font-style: normal;
-  
-  color: #4B3FE4; /* A modern, bold color */
-  background: linear-gradient(90deg, #B197 0%, #332e52 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
 
+.role-chip.admin {
+  background: var(--violet-light);
+  color: var(--violet);
+  border: 1px solid var(--violet-border);
 }
-h3{
-  font-family: 'Segoe UI', Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-  font-size: 2.8rem;
-  font-weight: 900;
-  font-style: normal;
-  
-  color: #4B3FE4; /* A modern, bold color */
-  background: linear-gradient(90deg, #B197 0%, #332e52 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
-}
-p {
- font-family:"Oswald", sans-serif;
 
+.role-chip.user {
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid var(--primary-border);
+}
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
-@import url('https://fonts.googleapis.com/css2?family=Michroma&display=swap');
-span{
-   font-family:"Oswald", sans-serif;
-   font-size: large;
 
-  font-weight: 400;
-  font-style: normal;
+.user-profile-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px 4px 4px;
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
 }
-h6{
-    font-family: 'Segoe UI', Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-  font-size: 2.8rem;
-  font-weight: 900;
-  font-style: normal;
-  
-  color: #4B3FE4; /* A modern, bold color */
-  background: linear-gradient(90deg, #B197 0%, #332e52 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
 
+.avatar-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: #0f172a;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
 }
-h5{
-   font-family: "Michroma", sans-serif;
-  font-weight:500;
-  font-style: normal;
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
 }
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500&display=swap');
-table{
-    font-family: "Barlow Condensed", sans-serif;
+
+.user-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-main);
+  line-height: 1.1;
+}
+
+.user-status-pill {
+  font-size: 0.65rem;
+  color: var(--success);
+  font-weight: 600;
+}
+
+.btn-logout {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  border-radius: var(--radius-md);
+  padding: 7px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition-fast);
+}
+
+.btn-logout:hover {
+  background: var(--danger-light);
+  border-color: var(--danger-border);
+  color: var(--danger);
+}
+
+.btn-login-clean {
+  color: var(--text-main);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.btn-login-clean:hover {
+  background: #f1f5f9;
+}
+
+.mobile-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  cursor: pointer;
+  padding: 6px;
+}
+
+/* Body & Sidebar */
+.app-body {
+  display: flex;
+  flex: 1;
+}
+
+.app-sidebar {
+  width: 240px;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-color);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 64px;
+  height: calc(100vh - 64px);
+  flex-shrink: 0;
+}
+
+.sidebar-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-light);
+  letter-spacing: 0.06em;
+  padding: 0 12px 10px 12px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  color: var(--text-body);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
   font-weight: 500;
-  font-style: normal;
-  font-size: medium;
-  font-stretch: expanded;
-
-}
-table th{
-  font-weight: 300;
-  font-size:larger;
-}
-.navbar-brand{
-  font-size: 1.8rem;
-  font-weight: 750;
-  font-style: normal;
-  
-  background: linear-gradient(90deg, #B197 0%, #332e52 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
-
-
-
+  transition: all var(--transition-fast);
 }
 
+.btn-nav-item {
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
 
+.nav-item-icon {
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast);
+}
+
+.nav-item:hover {
+  background: #f1f5f9;
+  color: var(--text-main);
+}
+
+.nav-item:hover .nav-item-icon {
+  color: var(--text-main);
+}
+
+.nav-item.router-link-active,
+.nav-item.router-link-exact-active {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.nav-item.router-link-active .nav-item-icon,
+.nav-item.router-link-exact-active .nav-item-icon {
+  color: var(--primary);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-light);
+}
+
+.support-card {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.support-icon {
+  width: 28px;
+  height: 28px;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+}
+
+.support-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.support-subtitle {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+/* Main Content */
+.app-main-content {
+  flex: 1;
+  min-width: 0;
+  background-color: var(--bg-canvas);
+}
+
+/* Mobile Responsive */
+@media (max-width: 868px) {
+  .mobile-toggle {
+    display: block;
+  }
+
+  .header-right {
+    display: none;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-color);
+    padding: 16px 24px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    box-shadow: var(--shadow-md);
+  }
+
+  .header-right.mobile-active {
+    display: flex;
+  }
+
+  .app-sidebar {
+    display: none;
+    position: fixed;
+    top: 64px;
+    left: 0;
+    bottom: 0;
+    width: 260px;
+    z-index: 40;
+    box-shadow: var(--shadow-xl);
+  }
+
+  .app-sidebar.sidebar-open {
+    display: flex;
+  }
+}
 </style>
